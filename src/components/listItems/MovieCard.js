@@ -1,10 +1,10 @@
 import { Box, Button, ButtonText, Card, Heading, HStack, Image, Text, VStack } from '@gluestack-ui/themed'
 
 const MovieCard = props => {
-  const { title,popularity,release_date,poster_path,navigation ,id} = props
+  const { title,popularity,release_date,poster_path,navigation ,id,type} = props
   // console.log(title)
   return (
-    <Card p='$5' borderRadius='$lg' maxWidth={400} >
+    <Card p='$5' borderRadius='$lg' maxWidth={400} mb={10} >
         <HStack space="md">
         <Image
         mb='$3'
@@ -23,14 +23,15 @@ alt="Image"
           <Button
             variant='link'
             bg="#06b6d4"
+            width="100%"
             onPress={() => {
               // Replace with your navigation logic
-              navigation.navigate('More', { id });
+              navigation.navigate('More', { id,type });
             }}
             
             
           >
-            <ButtonText>More Details</ButtonText>
+            <ButtonText style={{ color: '#ffffff' }}>More Details</ButtonText>
           </Button>
   
       </VStack>

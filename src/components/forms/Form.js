@@ -16,7 +16,7 @@ import {
 import { SearchIcon } from "@gluestack-ui/themed";
 
 export default function Form(props) {
-    const { onInputChange,onSubmit} =props;
+    const { onInputChange,onSubmit,value} =props;
   return (
     <VStack space={2} width="100%" p={5} mt={2}>
       <FormControl isRequired>
@@ -28,17 +28,21 @@ export default function Form(props) {
             mr={10}
             px={5}
             style ={styles.inputStyles}
+            bg="#D9D9D9"
             >
          <InputIcon>
          <Icon as={SearchIcon} size='sm' />
          </InputIcon>
          <InputField 
          onChangeText={value =>onInputChange(value)}
-         placeholder="Enter an ingredient name..."
+         placeholder="i.e:James Bond,CSI"
+         value={value}
          />
             </Input>
           
-          <Button onPress={onSubmit}>
+          <Button onPress={onSubmit}
+            bg="#06b6d4"
+            >
             <ButtonIcon as={SearchIcon} mr={12} />
             <ButtonText>Search</ButtonText>
           </Button>

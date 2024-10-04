@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: 'transparent', // Default background color
     borderRadius: 5, // Add some rounding to the buttons
+    paddingHorizontal:10
   },
   selectedButton: {
     backgroundColor: '#0e786d', // Green background for selected category

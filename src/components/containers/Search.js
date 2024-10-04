@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import {StyleSheet } from 'react-native';
-import { Center, Button, Text, View,  } from '@gluestack-ui/themed'; 
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Center, Text, View } from '@gluestack-ui/themed';
 import Form from '../forms/Form'; // Check this path
-import { searchMovies } from '../../services/api'; // Check this path
+import { search } from '../../services/api'; // Check this path
 import MoviesList from '../lists/MoviesList'; // Check this path
 import CustomBottomDrawer from '../Drawer/CustomBottomDrawer';
+import { Ionicons } from '@expo/vector-icons';
+import { Box } from '@gluestack-ui/themed';
 
 export default function Search(props) {
-  const [query, setQuery] = useState('multi'); // State to track the search input
+  const [query, setQuery] = useState(''); // State to track the search input
   const [loading, setLoading] = useState(false); // Loading state while fetching data
   const [error, setError] = useState(null); // Error state
   const [movies, setMovies] = useState([]); // State for search results
   const [isDrawerOpen, setDrawerOpen] = useState(false); // State for opening and closing the drawer
+  const [selectedCategory, setSelectedCategory] = useState('multi'); // State for the selected category
   const { navigation } = props;
 
   const handleInputChange = (text) => {
@@ -19,15 +22,16 @@ export default function Search(props) {
   };
 
   const handleSearch = async () => {
-    if (!query.trim()) return; // Prevent searching with an empty query
+    if (!query.trim()) {
+      setMovies([]); // Clear results when query is empty
+      return; // Prevent searching with an empty query
+    }
     setLoading(true); // Start loading
 
     try {
-      console.log(query)
-      const response = await searchMovies(query); // Call API to search movies
-      // console.log(response.data.results,"LOGG")
+      const response = await search(query, selectedCategory); // Call API to search movies
+      console.log(response.data.results[0])
       setMovies(response.data.results); // Update state with search results
-      
     } catch (err) {
       console.error('Error searching movies:', err);
       setError('Failed to load search results.'); // Set error message
@@ -43,19 +47,31 @@ export default function Search(props) {
         onInputChange={handleInputChange} 
         onSubmit={handleSearch} // Ensure Form can handle this prop
       />
-      <Button 
-        title="Open Drawer" 
-        onPress={() => setDrawerOpen(true)} 
-        style={{ marginTop: 20 }} 
-      />
+      <Text fontSize={16} color="#333" marginBottom={2}>
+        Choose Search Type:
+      </Text>
+      <Box borderWidth={1} borderColor="#06b6d4" borderRadius={8} padding={4} width="25%">
+        <TouchableOpacity onPress={() => setDrawerOpen(true)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text fontSize={18} color="#333">
+            {selectedCategory} {/* Display selected category */}
+          </Text>
+          <Ionicons
+            name="chevron-down"
+            size={20}
+            color="#06b6d4"
+            style={{ marginLeft: 10 }}
+          />
+        </TouchableOpacity>
+      </Box>
       <CustomBottomDrawer 
         isActive={isDrawerOpen} 
         onClose={() => setDrawerOpen(false)} 
-        categories={['multi','movie']} 
-        selectedCategory={query} 
+        categories={['multi', 'movie']} 
+        selectedCategory={selectedCategory} 
         onSelectCategory={(category) => { 
-          setQuery(category); 
-          handleSearch(); 
+          setSelectedCategory(category); // Update the selected category
+          setQuery(''); // Optionally clear the search query
+          // setMovies([]); /x/ Clear previous results when category changes
         }} 
       />
       
@@ -81,9 +97,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     padding: 20,
     alignItems: 'center',
-    // backgroundColor: '#f9f9f9',
-    height:500,
-    
+    height: 500,
   },
   noResultsText: {
     fontSize: 16,

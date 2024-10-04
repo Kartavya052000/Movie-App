@@ -1,30 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
-import { getMovieDetails } from '../../services/api';
+import { getDetails } from '../../services/api'; // Import the necessary function
+import { Center } from '@gluestack-ui/themed';
 
-export default function MoreScreen({ navigation,route }) {
-  const { id } = route.params;  // Get the movie id from the route
-  const [movieDetails, setMovieDetails] = useState(null);
+export default function MoreScreen({ navigation, route }) {
+  const { id, type } = route.params; // Get the ID and type from the route params
+  const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch movie details when the component mounts
+  // Fetch details when the component mounts
   useEffect(() => {
-    const fetchMovieDetails = async () => {
+    const fetchDetails = async () => {
       try {
-        const response = await getMovieDetails(id);
-        // console.log(response.data); // This will contain all the movie details
-  
-        setMovieDetails(response.data); // Use response.data here
+        const response = await getDetails(id, type); // Fetch details based on type
+        setDetails(response.data);
         setLoading(false);
       } catch (error) {
         console.error(error);
         setLoading(false);
       }
     };
-  
-    fetchMovieDetails();
-  }, [id]);
-  
+
+    fetchDetails();
+  }, [id, type]); // Add type to the dependency array
+
+  // Set the navigation title to the details title when fetched
+  useEffect(() => {
+    if (details) {
+      const title = type === 'movie' ? details.title : details.name; // Use name for TV shows
+      navigation.setOptions({ title }); // Update the screen title
+    }
+  }, [details, navigation, type]);
 
   if (loading) {
     return (
@@ -34,32 +40,34 @@ export default function MoreScreen({ navigation,route }) {
     );
   }
 
-  if (!movieDetails) {
+  if (!details) {
     return (
       <View style={styles.container}>
-        <Text>Movie details not found.</Text>
+        <Text>Details not found.</Text>
       </View>
     );
   }
 
-  const { title, poster_path, overview, release_date, vote_average, popularity } = movieDetails;
+  const { poster_path, overview, release_date, popularity } = details;
 
   return (
-    <View style={styles.container}>
+    <Center px={10}>
+      <Text style={styles.title}>{type === 'movie' ? details.title : details.name}</Text>
+
       <Image
         style={styles.poster}
-        source={{ uri: `https://image.tmdb.org/t/p/w500${poster_path}` }} // Display movie poster
+        source={{ uri: `https://image.tmdb.org/t/p/w500${poster_path}` }} // Display poster
       />
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.text}>Release Date: {release_date}</Text>
-      <Text style={styles.text}>Popularity: {popularity}</Text>
-      <Text style={styles.text}>Vote Average: {vote_average}</Text>
       <Text style={styles.overview}>{overview}</Text>
-    </View>
+
+      <Text style={styles.text}>
+        Popularity: {popularity} | Release Date: {release_date}
+      </Text>
+    </Center>
   );
 }
 
-// Styles for the movie details screen
+// Styles for the movie/tv show details screen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -67,7 +75,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   poster: {
-    width: '100%',
+    width: '80%',
     height: 300,
     borderRadius: 10,
   },
@@ -77,13 +85,16 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   text: {
-    fontSize: 16,
+    fontSize: 12,
     marginBottom: 5,
+    width: '80%',
+    marginTop: 10,
   },
   overview: {
     fontSize: 14,
     color: '#555',
-    marginTop: 10,
+    marginTop: 18,
+    width: '80%',
   },
   loadingContainer: {
     flex: 1,

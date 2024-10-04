@@ -6,7 +6,7 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: 'https://api.themoviedb.org/3', // Replace with your API base URL
   params: {
-api_key: process.env.TMDB_API_KEY, // Use your API key here
+api_key: 'd2c0cc48d579bee692ae0cd094a514b7', // Use your API key here
   },
 });
 
@@ -16,23 +16,24 @@ export const getMovies = (query) => {
 };
 
 // Search function
-export const searchMovies = (query) => {
-  // console.log(query)
-  return api.get('/search/movie', {
+export const search = (query, type) => {
+  const endpoint = type === 'multi' ? '/search/multi' : '/search/movie';
+  return api.get(endpoint, {
     params: { query },
   });
 };
 //TV SHOWS
-export const getTVShows = (query) => {
-  return api.get(`/tv/${query}`);
+export const getTVShows = (category) => {
+  // TMDB API supports specific endpoints for categories, e.g., airing_today, popular, etc.
+  return api.get(`/tv/${category}`);
+};
+export const getDetails = (id,type) => {
+  if(type=='movie'){
+    return api.get(`/movie/${id}`);
+
+  }else{
+    return api.get(`/tv/${id}`);
+  }
 };
 
-export const getMovieDetails = (id) => {
-  return api.get(`/movie/${id}`);
-};
-
-// Function to get TV show details by ID
-export const getTVShowDetails = (id) => {
-  return api.get(`/tv/${id}`);
-};
 export default api;
